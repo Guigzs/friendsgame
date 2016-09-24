@@ -1,0 +1,87 @@
+<?php
+
+use Symfony\Component\Debug\ErrorHandler;
+use Symfony\Component\Debug\ExceptionHandler;
+use Symfony\Component\HttpFoundation\Request;
+
+// Register global error and exception handlers
+ErrorHandler::register();
+ExceptionHandler::register();
+
+// Register service providers.
+$app->register(new Silex\Provider\DoctrineServiceProvider());
+$app->register(new Silex\Provider\TwigServiceProvider(), array(
+	'twig.path' => __DIR__.'/../views',
+));
+$app['twig'] = $app->factory($app->extend('twig', function(Twig_Environment $twig, $app) {
+	$twig->addExtension(new Twig_Extensions_Extension_Text());
+	return $twig;
+}));
+$app->register(new Silex\Provider\ValidatorServiceProvider());
+
+$app->register(new Silex\Provider\RoutingServiceProvider());
+$app->register(new Silex\Provider\SessionServiceProvider());
+$app->register(new Silex\Provider\SecurityServiceProvider(), array(
+	'security.firewalls' => array(
+		'secured' => array(
+			'pattern' => '^/',
+			'anonymous' => true,
+			'logout' => true,
+			'form' => array('login_path' => '/connexion', 'check_path' => '/connexion_check'),
+			'users' => $app->factory(function () use ($app) {
+				return new picobeauf\DAO\UserDAO($app['db']);
+			}),
+		),
+	),
+	'security.role_hierarchy' => array(
+		'ROLE_ADMIN' => array('ROLE_USER'),
+	),
+	'security.access_rules' => array(
+		array('^/admin', 'ROLE_ADMIN'),
+	),
+));
+$app->register(new Silex\Provider\FormServiceProvider());
+$app->register(new Silex\Provider\TranslationServiceProvider(), array(
+	'locale' => 'fr',
+));
+
+// Register services.
+$app['dao.joueur'] = $app->factory(function ($app) {
+	return new picobeauf\DAO\JoueurDAO($app['db']);
+});
+
+$app['dao.categorie'] = $app->factory(function ($app) {
+	return new picobeauf\DAO\CategorieDAO($app['db']);
+});
+
+$app['dao.tour'] = $app->factory(function ($app) {
+	return new picobeauf\DAO\TourDAO($app['db']);
+});
+
+$app['dao.defi'] = $app->factory(function ($app) {
+	$defiDAO = new picobeauf\DAO\DefiDAO($app['db']);
+	$defiDAO->setCategorieDAO($app['dao.categorie']);
+	return $defiDAO;
+});
+
+// Register JSON data decoder for JSON requests
+$app->before(function (Request $request) {
+	if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
+		$data = json_decode($request->getContent(), true);
+		$request->request->replace(is_array($data) ? $data : array());
+	}
+});
+
+/*$app->error(function (\Exception $e, $code) use ($app) {
+	switch ($code) {
+		case 403:
+			$message = 'Access denied.';
+			break;
+		case 404:
+			$message = 'The requested resource could not be found.';
+			break;
+		default:
+			$message = "Something went wrong.";
+	}
+	return $app['twig']->render('error.html.twig', array('message' => $message));
+});*/

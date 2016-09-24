@@ -1,0 +1,192 @@
+{% extends "layout.html.twig" %}
+
+{% set adminMenu = true %}
+
+{% block title %}Administration{% endblock %}
+
+{% block content %}
+<h2 class="text-center">{{ block('title') }}</h2>
+
+{% for flashMessage in app.session.flashbag.get('success') %}
+<div class="alert alert-success">
+	{{ flashMessage }}
+</div>
+{% endfor %}
+
+<div class="row">
+	<div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
+		<ul class="nav nav-tabs nav-justified">
+			<li class="active"><a href="#defismoderated" data-toggle="tab">Non modérés</a></li>
+			<li><a href="#defisnotmoderated" data-toggle="tab">Modérés</a></li>
+			<li><a href="#categories" data-toggle="tab">Catégories</a></li>
+		</ul>
+	</div>
+</div>
+<div class="tab-content">
+	<div class="tab-pane fade in active adminTable" id="defismoderated">
+		{% if defisModerated %}
+		<div class="table-responsive">
+			<table class="table table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Niveau</th>
+						<th>Contenu</th>
+						<th>Categorie</th>
+					</tr>
+				</thead>
+				{% for defiModerated in defisModerated %}
+				<tr>
+					<td>{{ defiModerated.date }}</td>
+					<td>{{ defiModerated.niveau  }}</td>
+					<td>{{ defiModerated.contenu  | truncate(60) }}</td>
+					<td>{{ defiModerated.categorie.nom }}</td>
+					<td>
+						<a href="{{ path('admin_defi_edit', { 'id': defiModerated.id }) }}" class="btn btn-info btn-xs" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
+						<button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#defiDialog{{ defiModerated.id }}"><span class="glyphicon glyphicon-remove"></span>
+						</button>
+						<div class="modal fade" id="defiDialog{{ defiModerated.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+										<h4 class="modal-title" id="myModalLabel">Confirmation</h4>
+									</div>
+									<div class="modal-body">
+										Mon gros, veux-tu vraiment supprimer ce défi ?
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Non, il est cool</button>
+										<a href="{{ path('admin_defi_delete', { 'id': defiModerated.id }) }}" class="btn btn-danger">Ouais je m'en balance</a>
+									</div>
+								</div>
+								<!-- /.modal-content -->
+							</div>
+							<!-- /.modal-dialog -->
+						</div>
+						<!-- /.modal -->
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% else %}
+		<div class="alert alert-warning">Pas de défis.</div>
+		{% endif %}
+	</div>
+	
+	<div class="tab-pane fade adminTable" id="defisnotmoderated">
+		{% if defisNotModerated %}
+		<div class="table-responsive">
+			<table class="table table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Niveau</th>
+						<th>Contenu</th>
+						<th>Categorie</th>
+					</tr>
+				</thead>
+				{% for defiNotModerated in defisNotModerated %}
+				<tr>
+					<td>{{ defiNotModerated.date }}</td>
+					<td>{{ defiNotModerated.niveau }}</td>
+					<td>{{ defiNotModerated.contenu | truncate(60) }}</td>
+					<td>{{ defiNotModerated.categorie.nom }}</td>
+					<td>
+						<a href="{{ path('admin_defi_edit', { 'id': defiNotModerated.id }) }}" class="btn btn-info btn-xs" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
+						<button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#defiDialog{{ defiNotModerated.id }}"><span class="glyphicon glyphicon-remove"></span>
+						</button>
+						<div class="modal fade" id="defiDialog{{ defiNotModerated.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+										<h4 class="modal-title" id="myModalLabel">Confirmation</h4>
+									</div>
+									<div class="modal-body">
+										Mon gros, veux-tu vraiment supprimer ce défi ?
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Non, il est cool</button>
+										<a href="{{ path('admin_defi_delete', { 'id': defiNotModerated.id }) }}" class="btn btn-danger">Ouais je m'en balance</a>
+									</div>
+								</div>
+								<!-- /.modal-content -->
+							</div>
+							<!-- /.modal-dialog -->
+						</div>
+						<!-- /.modal -->
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% else %}
+		<div class="alert alert-warning">Pas de défis.</div>
+		{% endif %}
+	</div>
+	
+	<div class="tab-pane fade adminTable" id="categories">
+		{% if categories %}
+		<div class="table-responsive">
+			<table class="table table-hover table-condensed">
+				<thead>
+					<tr>
+						<th>Identifiant</th>
+						<th>Nom</th>
+					</tr>
+				</thead>
+				{% for categorie in categories %}
+				<tr>
+					<td>{{ categorie.id }}</td>
+					<td>{{ categorie.nom }}</td>
+					<td>
+						<button type="button" class="btn btn-danger btn-xs" title="Delete" data-toggle="modal" data-target="#defiDialog{{ categorie.id }}"><span class="glyphicon glyphicon-remove"></span>
+						</button>
+						<div class="modal fade" id="defiDialog{{ categorie.id }}" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+							<div class="modal-dialog">
+								<div class="modal-content">
+									<div class="modal-header">
+										<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+										<h4 class="modal-title" id="myModalLabel">Confirmation</h4>
+									</div>
+									<div class="modal-body">
+										Mon gros, veux-tu vraiment supprimer cette catégorie ?
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-default" data-dismiss="modal">Non, elle est cool</button>
+										<a href="{{ path('admin_categorie_delete', { 'id': categorie.id }) }}" class="btn btn-danger">Ouais je m'en balance</a>
+									</div>
+								</div>
+								<!-- /.modal-content -->
+							</div>
+							<!-- /.modal-dialog -->
+						</div>
+						<!-- /.modal -->
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		{% else %}
+		<div class="alert alert-warning">Pas de défis.</div>
+		{% endif %}
+		
+		{{ form_start(categorieForm) }}
+			<div class="form-group">
+				{{ form_errors(categorieForm.nom) }}
+				{{ form_widget(categorieForm.nom, { 'attr':  {
+				'rows': '4',
+				'class': 'form-control',
+				'placeholder': 'Catégorie'
+				}}) }}
+			</div>
+			<div class="form-group">
+				<input type="submit" class="btn btn-primary" value="Ajouter une catégorie" />
+			</div>
+		{{ form_end(categorieForm) }}
+
+	</div>
+</div>
+{% endblock %}

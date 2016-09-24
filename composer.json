@@ -1,0 +1,19 @@
+{
+	"require": {
+		"silex/silex": "2.*",
+		"doctrine/dbal": "2.*",
+		"twig/twig": "1.*",
+		"symfony/twig-bridge": "2.*",
+		"symfony/security": "^3.1",
+		"symfony/form": "2.*",
+		"symfony/translation": "2.*",
+		"symfony/config": "2.*",
+		"twig/extensions": "1.*",
+		"symfony/validator": "2.*"
+	},
+	"autoload": {
+		"psr-4": {
+			"picobeauf\\": "src"
+		}
+	}
+}

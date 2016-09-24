@@ -1,0 +1,83 @@
+{% extends "layout.html.twig" %}
+{% block content %}
+
+	<div id="error">
+		{% for flashMessage in app.session.flashbag.get('error') %}
+			<div class="alert alert-danger">
+				{{ flashMessage }}
+			</div>
+		{% endfor %}
+		{% for flashMessage in app.session.flashbag.get('success') %}
+			<div class="alert alert-success">
+				{{ flashMessage }}
+			</div>
+		{% endfor %}
+	</div>
+	{% if is_granted('ROLE_ADMIN') %}
+	<div class="wrapper-jeu">
+			<div>
+				<p class="nom_joueur">{{ joueur.nom }}</p>
+				<p class="nom_defi">{{ defi.contenu }}</p>
+				<p class="niveau_defi">{{ defi.niveau }}</p>
+			</div>
+
+		<button class="btn btn-primary" id="jeu_jouer">Jouer</button>
+
+		<p id="de">Lancer le dé</p>
+	{% endif %}
+		<div class="side">
+			<div class="side-section">
+				<p id="tour-nombre">Tour : <span>{% for tour in tours %}{{ tour.nombre }}{% endfor %}</span></p>
+			</div>
+			<div class="side-section">
+				<p>Liste des joueurs</p>
+				<ol id="liste_joueurs">
+					{% for joueurList in joueursList %}
+						{% if joueurList.tour == 1 and app.user and is_granted('ROLE_ADMIN') %}
+							<li style="color:red;">{{ joueurList.nom }} - {% if joueurList.sexe == 0 %} F {% else %} M {% endif %}</li>
+						{% else %}
+							<li>{{ joueurList.nom }} - {% if joueurList.sexe == 0 %} F {% else %} M {% endif %}</li>
+						{% endif %}
+					{% endfor %}
+				</ol>
+			</div>
+			<div class="side-section">
+				<p id="tour-record">Record : <span>{% for tour in tours %}{{ tour.record }}{% endfor %}</span></p>
+			</div>
+		</div>
+	</div>
+	
+	{% if app.user and is_granted('IS_AUTHENTICATED_FULLY') %}
+		{{ form_start(joueurForm) }}
+			<div class="col-sm-4">
+				{{ form_errors(joueurForm.nom) }}
+				{{ form_widget(joueurForm.nom, { 'attr':  {
+				'rows': '4',
+				'class': 'form-control',
+				'placeholder': 'Joueur'
+				}}) }}
+			</div>
+			<div class="form-group">
+				{{ form_label(joueurForm.sexe, null, { 'label_attr':  {
+				'class': 'col-sm-5 control-label'
+				}}) }}
+				<div class="col-sm-2">
+					{{ form_errors(joueurForm.sexe) }}
+					{{ form_widget(joueurForm.sexe, { 'attr':  {
+					'class': 'form-control'
+					}}) }}
+				</div>
+			</div>
+			<div class="form-group">
+				<input type="submit" id="jouer" class="btn btn-primary" value="Ajouter un joueur" />
+			</div>
+		{{ form_end(joueurForm) }}
+
+		<a href="{{ path('jeu_joueurs_reset') }}">Réinitialiser les joueurs</a>
+		<a href="{{ path('jeu_defis_reset') }}">Réinitialiser les defis</a>
+		<a href="{{ path('jeu_tours_reset') }}">Réinitialiser les tours</a>
+
+	{% endif %}
+
+
+{% endblock %}
